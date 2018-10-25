@@ -1,6 +1,15 @@
 package xrate;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 /**
  * Provide access to basic currency exchange rate services.
@@ -20,6 +29,8 @@ public class ExchangeRateReader {
      * @param baseURL
      *            the base URL for requests
      */
+	private String url;
+	
     public ExchangeRateReader(String baseURL) {
         // TODO Your code here
         /*
@@ -28,6 +39,15 @@ public class ExchangeRateReader {
          * the two methods below. All you need to do here is store the
          * provided `baseURL` in a field so it will be accessible later.
          */
+    	url = baseURL;
+    }
+    
+    public static String replaceSingle(int x){
+    	String y = Integer.toString(x);
+    	if(y.length() == 1){
+    		y = "0" + y;
+    	}
+    	return y;
     }
 
     /**
@@ -47,7 +67,8 @@ public class ExchangeRateReader {
      */
     public float getExchangeRate(String currencyCode, int year, int month, int day) throws IOException {
         // TODO Your code here
-        throw new UnsupportedOperationException();
+		//System.out.println(reader.readLine());
+        //throw new UnsupportedOperationException();
     }
 
     /**
@@ -71,6 +92,17 @@ public class ExchangeRateReader {
             String fromCurrency, String toCurrency,
             int year, int month, int day) throws IOException {
         // TODO Your code here
-        throw new UnsupportedOperationException();
+    	String urlString = url + year + "-" + replaceSingle(month) + "-" + replaceSingle(day) + "";
+    	URL url = new URL(urlString);
+    	InputStream inputStream = url.openStream();
+    	BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		JsonObject x = new JsonParser().parse(reader).getAsJsonObject();
+		JsonElement y =  x.get("rates");
+		JsonObject z = y.getAsJsonObject();
+		float a =  z.get(fromCurrency).getAsFloat() / z.get(toCurrency).getAsFloat();
+		System.out.println(a);
+		return a;
+		//System.out.println(x);
+        //throw new UnsupportedOperationException();
     }
 }
