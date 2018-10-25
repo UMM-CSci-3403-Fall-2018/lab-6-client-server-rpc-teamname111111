@@ -67,6 +67,16 @@ public class ExchangeRateReader {
      */
     public float getExchangeRate(String currencyCode, int year, int month, int day) throws IOException {
         // TODO Your code here
+		String urlString = url + year + "-" + replaceSingle(month) + "-" + replaceSingle(day) + "";
+		URL url = new URL(urlString);
+		InputStream inputStream = url.openStream();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+		JsonObject x = new JsonParser().parse(reader).getAsJsonObject();
+		JsonElement y =  x.get("rates");
+		JsonObject z = y.getAsJsonObject();
+		float a =  z.get(currencyCode).getAsFloat();
+		System.out.println(a);
+		return a;
 		//System.out.println(reader.readLine());
         //throw new UnsupportedOperationException();
     }
