@@ -5,8 +5,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Properties;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -30,6 +33,7 @@ public class ExchangeRateReader {
      *            the base URL for requests
      */
 	private String url;
+	private String accessKey;
 	
     public ExchangeRateReader(String baseURL) {
         // TODO Your code here
@@ -39,6 +43,12 @@ public class ExchangeRateReader {
          * the two methods below. All you need to do here is store the
          * provided `baseURL` in a field so it will be accessible later.
          */
+        try {
+            readAccessKeys();
+        } catch (IOException e){
+            System.out.println("Could not recieve accessKey, check if your access_keys.properties file is set up correctly");
+            System.exit(1);
+        }
     	url = baseURL;
     }
     
@@ -49,6 +59,30 @@ public class ExchangeRateReader {
     	}
     	return y;
     }
+
+	private void readAccessKeys() throws IOException {
+		Properties properties = new Properties();
+		FileInputStream in = null;
+		try {
+			// Don't change this filename unless you know what you're doing.
+			// It's crucial that we don't commit the file that contains the
+			// (private) access keys. This file is listed in `.gitignore` so
+			// it's safe to put keys there as we won't accidentally commit them.
+			in = new FileInputStream("etc/access_keys.properties");
+		} catch (FileNotFoundException e) {
+			/*
+			 * If this error gets generated, make sure that you have the desired
+			 * properties file in your project's `etc` directory. You may need
+			 * to rename the file ending in `.sample` by removing that suffix.
+			 */
+			System.err.println("Couldn't open etc/access_keys.properties; have you renamed the sample file?");
+			throw(e);
+		}
+		properties.load(in);
+		// This assumes we're using Fixer.io and that the desired access key is
+		// in the properties file in the key labelled `fixer_io`.
+		accessKey = properties.getProperty("fixer_io");
+	}
 
     /**
      * Get the exchange rate for the specified currency against the base
@@ -67,7 +101,7 @@ public class ExchangeRateReader {
      */
     public float getExchangeRate(String currencyCode, int year, int month, int day) throws IOException {
         // TODO Your code here
-		String urlString = url + year + "-" + replaceSingle(month) + "-" + replaceSingle(day) + "";
+		String urlString = url + year + "-" + replaceSingle(month) + "-" + replaceSingle(day) + "?access_key=" + accessKey ;
 		URL url = new URL(urlString);
 		InputStream inputStream = url.openStream();
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -102,7 +136,7 @@ public class ExchangeRateReader {
             String fromCurrency, String toCurrency,
             int year, int month, int day) throws IOException {
         // TODO Your code here
-    	String urlString = url + year + "-" + replaceSingle(month) + "-" + replaceSingle(day) + "";
+    	String urlString = url + year + "-" + replaceSingle(month) + "-" + replaceSingle(day) + "?access_key=" + accessKey;
     	URL url = new URL(urlString);
     	InputStream inputStream = url.openStream();
     	BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
