@@ -36,19 +36,16 @@ public class ExchangeRateReader {
 	private String accessKey;
 	
     public ExchangeRateReader(String baseURL) {
-        // TODO Your code here
-        /*
-         * DON'T DO MUCH HERE!
-         * People often try to do a lot here, but the action is actually in
-         * the two methods below. All you need to do here is store the
-         * provided `baseURL` in a field so it will be accessible later.
-         */
+        //Checks if an accessKey exists.
+        //If no access key exists, it tells the user to check
+        //access_keys.properties and exits
         try {
             readAccessKeys();
         } catch (IOException e){
-            System.out.println("Could not recieve accessKey, check if your access_keys.properties file is set up correctly");
+            System.out.println("Could not receive accessKey, check if your access_keys.properties is in the correct location.");
             System.exit(1);
         }
+        //Sets the url to be baseURL
     	url = baseURL;
     }
     
@@ -100,19 +97,22 @@ public class ExchangeRateReader {
      * @throws IOException
      */
     public float getExchangeRate(String currencyCode, int year, int month, int day) throws IOException {
-        // TODO Your code here
-		String urlString = url + year + "-" + replaceSingle(month) + "-" + replaceSingle(day) + "?access_key=" + accessKey ;
+        //Creates the url for the webpage
+		String urlString = url + year + "-" + replaceSingle(month) + "-" + replaceSingle(day) + "?access_key=" + accessKey;
+		//Creates a url
 		URL url = new URL(urlString);
+		//Opens an input stream on the url
 		InputStream inputStream = url.openStream();
+		//Creates a BufferedReader on inputstream
 		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-		JsonObject x = new JsonParser().parse(reader).getAsJsonObject();
-		JsonElement y =  x.get("rates");
-		JsonObject z = y.getAsJsonObject();
-		float a =  z.get(currencyCode).getAsFloat();
-		System.out.println(a);
-		return a;
-		//System.out.println(reader.readLine());
-        //throw new UnsupportedOperationException();
+		//Creates a JsonObject containing the json of the webpage
+		JsonObject fullobj = new JsonParser().parse(reader).getAsJsonObject();
+		//Creates a JsonObject of the rates in fullobj
+		JsonObject rates =  fullobj.get("rates").getAsJsonObject();
+		//Gets the exchange rate of the currencycode as a float from rates
+		float exchangerate =  rates.get(currencyCode).getAsFloat();
+		//Returns the exchange rate
+		return exchangerate;
     }
 
     /**
@@ -135,18 +135,21 @@ public class ExchangeRateReader {
     public float getExchangeRate(
             String fromCurrency, String toCurrency,
             int year, int month, int day) throws IOException {
-        // TODO Your code here
-    	String urlString = url + year + "-" + replaceSingle(month) + "-" + replaceSingle(day) + "?access_key=" + accessKey;
-    	URL url = new URL(urlString);
-    	InputStream inputStream = url.openStream();
-    	BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-		JsonObject x = new JsonParser().parse(reader).getAsJsonObject();
-		JsonElement y =  x.get("rates");
-		JsonObject z = y.getAsJsonObject();
-		float a =  z.get(fromCurrency).getAsFloat() / z.get(toCurrency).getAsFloat();
-		System.out.println(a);
-		return a;
-		//System.out.println(x);
-        //throw new UnsupportedOperationException();
+        //Creates the url for the webpage
+        String urlString = url + year + "-" + replaceSingle(month) + "-" + replaceSingle(day) + "?access_key=" + accessKey;
+        //Creates a url
+        URL url = new URL(urlString);
+        //Opens an input stream on the url
+        InputStream inputStream = url.openStream();
+        //Creates a BufferedReader on inputstream
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        //Creates a JsonObject containing the json of the webpage
+        JsonObject fullobj = new JsonParser().parse(reader).getAsJsonObject();
+        //Creates a JsonObject of the rates in fullobj
+        JsonObject rates =  fullobj.get("rates").getAsJsonObject();
+        //Gets the exchange rate of the currencycode as a float from rates
+		float exchangerate =  rates.get(fromCurrency).getAsFloat() / rates.get(toCurrency).getAsFloat();
+		//Returns the exchange rate
+		return exchangerate;
     }
 }
