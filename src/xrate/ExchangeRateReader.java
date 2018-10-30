@@ -42,7 +42,7 @@ public class ExchangeRateReader {
         try {
             readAccessKeys();
         } catch (IOException e){
-            System.out.println("Could not receive accessKey, check if your access_keys.properties is in the correct location.");
+            System.err.println("Could not receive accessKey, check if your access_keys.properties is in the correct location.");
             System.exit(1);
         }
         //Sets the url to be baseURL
